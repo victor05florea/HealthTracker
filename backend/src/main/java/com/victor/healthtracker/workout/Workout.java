@@ -2,6 +2,9 @@ package com.victor.healthtracker.workout;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 
 @Entity
 public class Workout {
@@ -32,4 +35,11 @@ public class Workout {
 
     public LocalDateTime getDate() { return date; }
     public void setDate(LocalDateTime date) { this.date = date; }
+
+    @OneToMany(mappedBy = "workout", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Exercise> exercises = new ArrayList<>();
+
+    // Getter si Setter pentru lista
+    public List<Exercise> getExercises() { return exercises; }
+    public void setExercises(List<Exercise> exercises) { this.exercises = exercises; }
 }

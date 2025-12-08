@@ -1,7 +1,9 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { StatusBar } from 'expo-status-bar';
-import Ionicons from 'react-native-vector-icons/Ionicons'; // Iconite frumoase
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import WorkoutDetailScreen from './screens/WorkoutDetailScreen';
 
 // Importam ecranele noastre
 import SleepScreen from './screens/SleepScreen';
@@ -9,6 +11,16 @@ import WorkoutScreen from './screens/WorkoutScreen';
 import StepsScreen from './screens/StepsScreen';
 
 const Tab = createBottomTabNavigator();
+const Stack = createNativeStackNavigator();
+
+function WorkoutStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name="WorkoutList" component={WorkoutScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="WorkoutDetail" component={WorkoutDetailScreen} options={{ title: 'Detalii Antrenament' }} />
+    </Stack.Navigator>
+  );
+}
 
 export default function App() {
   return (
@@ -34,7 +46,7 @@ export default function App() {
         })}
       >
         <Tab.Screen name="Somn" component={SleepScreen} />
-        <Tab.Screen name="Sport" component={WorkoutScreen} />
+        <Tab.Screen name="Sport" component={WorkoutStack} />
         <Tab.Screen name="Pasi" component={StepsScreen} />
       </Tab.Navigator>
       <StatusBar style="auto" />

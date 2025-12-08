@@ -1,10 +1,13 @@
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, SafeAreaView, Alert } from 'react-native';
 import { useState, useEffect } from 'react';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useIsFocused } from '@react-navigation/native'; // Import nou pentru refresh automat
 
-export default function WorkoutScreen() {
+// Primim { navigation } automat de la React Navigation
+export default function WorkoutScreen({ navigation }) {
   const [workouts, setWorkouts] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
+  const isFocused = useIsFocused(); // Ne spune daca suntem pe ecranul asta
 
   // Lista de optiuni predefinite
   const workoutTypes = [
@@ -17,53 +20,90 @@ export default function WorkoutScreen() {
 
   // 1. Functia de incarcare a istoricului
   const fetchWorkouts = () => {
-    // PUNE IP-UL TAU AICI
+    // ATENTIE LA IP! Daca esti acasa, pune 192.168...
     fetch('http://10.10.200.2:8080/api/workouts')
       .then(res => res.json())
-      .then(data => setWorkouts(data.reverse())) // Reverse ca sa vedem cele mai noi sus
-      .catch(err => console.error(err));
+      .then(data => setWorkouts(data.reverse())) 
+      .catch(err => console.error("Eroare fetch:", err));
   };
 
+  // Se executa cand intram pe ecran (ca sa vedem update-uri daca stergem/adaugam)
   useEffect(() => {
-    fetchWorkouts();
-  }, []);
+    if (isFocused) {
+      fetchWorkouts();
+    }
+  }, [isFocused]);
 
   // 2. Functia de salvare a unui antrenament nou
   const handleAddWorkout = (type) => {
     fetch('http://10.10.200.2:8080/api/workouts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type: type }) // Trimitem doar tipul, data o pune Java
+      body: JSON.stringify({ type: type })
     })
     .then(res => res.json())
     .then(savedWorkout => {
-      // Adaugam noul antrenament in lista locala si inchidem fereastra
       setWorkouts([savedWorkout, ...workouts]);
       setModalVisible(false);
     })
     .catch(err => console.error(err));
   };
 
-  // Randare un element din lista (Card)
+  // 3. Functia de STERGERE (Noua)
+  const handleDelete = (id) => {
+    Alert.alert(
+      "Șterge Antrenament",
+      "Sigur vrei să ștergi acest antrenament și exercițiile lui?",
+      [
+        { text: "Nu", style: "cancel" },
+        { 
+          text: "Da", 
+          style: "destructive",
+          onPress: () => {
+            fetch(`http://10.10.200.2:8080/api/workouts/${id}`, { method: 'DELETE' })
+              .then(() => {
+                // Scoatem elementul din lista locala ca sa nu mai facem request la server
+                setWorkouts(prevWorkouts => prevWorkouts.filter(item => item.id !== id));
+              })
+              .catch(err => console.error("Eroare stergere:", err));
+          }
+        }
+      ]
+    );
+  };
+
+  // Randare un element din lista (Card Actualizat)
   const renderItem = ({ item }) => (
-    <View style={styles.card}>
+    <TouchableOpacity 
+      style={styles.card}
+      // Aici e NAVIGAREA catre detalii:
+      onPress={() => navigation.navigate('WorkoutDetail', { workout: item })}
+    >
       <View style={styles.iconContainer}>
         <Ionicons name="barbell" size={24} color="white" />
       </View>
-      <View>
+      
+      <View style={{ flex: 1 }}>
         <Text style={styles.workoutType}>{item.type}</Text>
         <Text style={styles.date}>
           {new Date(item.date).toLocaleDateString('ro-RO', { day: 'numeric', month: 'long', hour: '2-digit', minute:'2-digit' })}
         </Text>
       </View>
-    </View>
+
+      {/* Butonul de Stergere (Cos de gunoi) */}
+      <TouchableOpacity 
+        onPress={() => handleDelete(item.id)} 
+        style={styles.deleteButton}
+      >
+        <Ionicons name="trash-outline" size={22} color="#e17055" />
+      </TouchableOpacity>
+    </TouchableOpacity>
   );
 
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Antrenamente 💪</Text>
 
-      {/* Lista Istoric */}
       <FlatList
         data={workouts}
         renderItem={renderItem}
@@ -72,7 +112,6 @@ export default function WorkoutScreen() {
         ListEmptyComponent={<Text style={styles.emptyText}>Nu ai niciun antrenament încă.</Text>}
       />
 
-      {/* Butonul de Adaugare (Floating Button) */}
       <TouchableOpacity 
         style={styles.addButton} 
         onPress={() => setModalVisible(true)}
@@ -80,7 +119,7 @@ export default function WorkoutScreen() {
         <Ionicons name="add" size={32} color="white" />
       </TouchableOpacity>
 
-      {/* Fereastra de selectie (Modal) */}
+      {/* Modalul a ramas la fel */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -90,7 +129,6 @@ export default function WorkoutScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Alege Antrenamentul</Text>
-            
             {workoutTypes.map((type, index) => (
               <TouchableOpacity 
                 key={index} 
@@ -100,7 +138,6 @@ export default function WorkoutScreen() {
                 <Text style={styles.optionText}>{type}</Text>
               </TouchableOpacity>
             ))}
-
             <TouchableOpacity 
               style={styles.cancelButton}
               onPress={() => setModalVisible(false)}
@@ -119,16 +156,19 @@ const styles = StyleSheet.create({
   title: { fontSize: 28, fontWeight: 'bold', textAlign: 'center', marginVertical: 20, color: '#2d3436' },
   list: { paddingHorizontal: 20, paddingBottom: 100 },
   
-  // Card Styles
+  // Card
   card: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'white', borderRadius: 15, padding: 15, marginBottom: 15, elevation: 3 },
   iconContainer: { backgroundColor: '#6c5ce7', padding: 10, borderRadius: 10, marginRight: 15 },
   workoutType: { fontSize: 18, fontWeight: 'bold', color: '#2d3436' },
   date: { color: 'gray', fontSize: 14 },
   
+  // Delete Button
+  deleteButton: { padding: 10 },
+
   // Floating Action Button
   addButton: { position: 'absolute', bottom: 30, right: 30, backgroundColor: '#0984e3', width: 60, height: 60, borderRadius: 30, justifyContent: 'center', alignItems: 'center', elevation: 8 },
 
-  // Modal Styles
+  // Modal
   modalOverlay: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' },
   modalContent: { backgroundColor: 'white', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20 },
   modalTitle: { fontSize: 20, fontWeight: 'bold', textAlign: 'center', marginBottom: 20 },

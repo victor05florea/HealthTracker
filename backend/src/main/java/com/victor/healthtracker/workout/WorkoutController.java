@@ -30,4 +30,19 @@ public class WorkoutController {
         }
         return workoutRepository.save(workout);
     }
+    // 3. DELETE: Sterge un antrenament (si exercitiile lui automat)
+    @DeleteMapping("/{id}")
+    public void deleteWorkout(@PathVariable Long id) {
+        workoutRepository.deleteById(id);
+    }
+
+    // 4. POST: Adauga un exercitiu la un antrenament specific
+    @PostMapping("/{id}/exercises")
+    public Exercise addExerciseToWorkout(@PathVariable Long id, @RequestBody Exercise exercise) {
+        Workout workout = workoutRepository.findById(id).orElseThrow();
+        exercise.setWorkout(workout);
+        workout.getExercises().add(exercise);
+        workoutRepository.save(workout); // Salvam parintele, se salveaza si copilul
+        return exercise;
+    }
 }
