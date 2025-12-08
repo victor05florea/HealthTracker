@@ -9,7 +9,7 @@ export default function StepsScreen() {
   const [currentStepCount, setCurrentStepCount] = useState(0);
   const isFocused = useIsFocused(); // True cand suntem pe acest ecran
   
-  const DAILY_GOAL = 6000;
+  const DAILY_GOAL = 5000;
 
   useEffect(() => {
     let subscription;
