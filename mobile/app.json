@@ -13,13 +13,19 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.victor.healthtracker",
+      "infoPlist": {
+        "NSMotionUsageDescription": "HealthTracker are nevoie de acces la senzorul de mișcare pentru a-ți număra pașii zilnici."
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
+      "permissions": ["android.permission.ACTIVITY_RECOGNITION"], 
+      "package": "com.victor.healthtracker",
       "edgeToEdgeEnabled": true
     },
     "web": {
