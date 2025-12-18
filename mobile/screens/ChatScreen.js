@@ -23,25 +23,24 @@ export default function ChatScreen() {
 
   const sendMessage = () => {
     if (!inputText.trim()) return;
-
-    // 1. Adaugam mesajul tau in lista
+    //Adaugam mesajul in lista
     const userMsg = { id: Date.now().toString(), text: inputText, sender: 'user' };
     setMessages(prev => [...prev, userMsg]);
     setInputText('');
     setLoading(true);
 
-    // Scroll jos automat
+    //Scroll jos automat
     setTimeout(() => flatListRef.current?.scrollToEnd(), 100);
 
-    // 2. Trimitem la Backend (Verifica IP-ul!)
-    fetch('http://10.10.200.2:8080/api/chat', {
+    //Trimitem la Backend
+    fetch('http://192.168.1.134:8080/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: userMsg.text })
     })
     .then(res => res.json())
     .then(data => {
-      // 3. Adaugam raspunsul AI
+      //Adaugam raspunsul
       const aiMsg = { id: Date.now().toString() + '_ai', text: data.reply, sender: 'ai' };
       setMessages(prev => [...prev, aiMsg]);
       setLoading(false);
@@ -72,7 +71,7 @@ export default function ChatScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>AI Coach 🤖</Text>
+        <Text style={styles.headerTitle}>ChatBot</Text>
       </View>
 
       <FlatList
@@ -85,7 +84,7 @@ export default function ChatScreen() {
 
       {loading && (
         <View style={{ padding: 10 }}>
-          <Text style={{ textAlign: 'center', color: 'gray' }}>AI-ul scrie...</Text>
+          <Text style={{ textAlign: 'center', color: 'gray' }}>ChatBot-ul scrie...</Text>
           <ActivityIndicator size="small" color="#0984e3" />
         </View>
       )}

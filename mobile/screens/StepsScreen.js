@@ -15,15 +15,15 @@ export default function StepsScreen() {
     let subscription;
 
     const startTracking = async () => {
-      // 1. Verificam senzorul
+      //Verificam senzorul
       const isAvailable = await Pedometer.isAvailableAsync();
       setIsPedometerAvailable(String(isAvailable));
 
       if (isAvailable) {
-        // 2. IMPORTANT: Citim istoricul de la miezul noptii pana ACUM
+        //Citim istoricul de la miezul noptii pana acum
         const end = new Date();
         const start = new Date();
-        start.setHours(0, 0, 0, 0); // Azi la ora 00:00
+        start.setHours(0, 0, 0, 0); //azi la 00:00
 
         try {
           const pastStepCountResult = await Pedometer.getStepCountAsync(start, end);
@@ -34,17 +34,11 @@ export default function StepsScreen() {
           console.log("Nu am putut citi istoricul (poate lipsesc permisiunile):", error);
         }
 
-        // 3. Ne abonam la pasii LIVE (ca sa creasca numarul in timp ce mergi)
+        //Ne abonam la pasii in timp real
         subscription = Pedometer.watchStepCount(result => {
-            // Cand mergi, adunam pasii noi la ce aveam deja?
-            // Din pacate watchStepCount pe unele telefoane da totalul, pe altele doar delta.
-            // Cea mai sigura metoda: Cand detectam miscare, recitim totalul de la 00:00
-            
-            // Recitim totalul zilei pentru precizie maxima
             const now = new Date();
             const midnight = new Date();
             midnight.setHours(0, 0, 0, 0);
-            
             Pedometer.getStepCountAsync(midnight, now).then(res => {
                  setCurrentStepCount(res.steps);
             });
@@ -55,19 +49,16 @@ export default function StepsScreen() {
     if (isFocused) {
         startTracking();
     }
-
-    // Curatenie cand iesim de pe ecran
     return () => {
       if (subscription) {
         subscription.remove();
       }
     };
-  }, [isFocused]); // Se re-executa cand intri pe ecran
+  }, [isFocused]); //Se re-executa cand intri pe ecran
 
-  // Functia de salvare ramane la fel
   const syncSteps = () => {
-    // ATENTIE: Verifica IP-ul!
-    fetch('http://10.10.200.2:8080/api/steps', {
+    //Verifica IP-ul
+    fetch('http://192.168.1.134:8080/api/steps', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(currentStepCount)
@@ -83,7 +74,7 @@ export default function StepsScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Pași Azi 👣</Text>
+      <Text style={styles.title}>Pașii făcuți azi</Text>
 
       <View style={styles.circleContainer}>
         <View style={[styles.circle, { borderColor: progress >= 1 ? '#00b894' : '#0984e3' }]}> 
@@ -92,7 +83,7 @@ export default function StepsScreen() {
         </View>
       </View>
 
-      <Text style={styles.goalText}>Ținta: {DAILY_GOAL}</Text>
+      <Text style={styles.goalText}>Goal: {DAILY_GOAL}</Text>
       
       <Text style={styles.status}>
         Senzor: {isPedometerAvailable === 'true' ? 'Activ ✅' : 'Verifică permisiunile ⚠️'}
@@ -100,7 +91,7 @@ export default function StepsScreen() {
 
       <TouchableOpacity style={styles.syncButton} onPress={syncSteps}>
         <Ionicons name="cloud-upload-outline" size={24} color="white" />
-        <Text style={styles.syncText}>Salvează Progresul</Text>
+        <Text style={styles.syncText}>Salvează progresul</Text>
       </TouchableOpacity>
 
     </SafeAreaView>

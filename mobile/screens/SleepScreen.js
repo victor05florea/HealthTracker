@@ -1,13 +1,12 @@
 import { StyleSheet, Text, View, FlatList, SafeAreaView } from 'react-native';
 import { useEffect, useState } from 'react';
 
-// Atentie: Nu mai e "export default function App", ci SleepScreen
 export default function SleepScreen() {
   const [sleepData, setSleepData] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://10.10.200.2:8080/api/sleep') 
+    fetch('http://192.168.1.134:8080/api/sleep') 
       .then(response => response.json())
       .then(data => {
         setSleepData(data);
@@ -40,7 +39,7 @@ export default function SleepScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Istoric Somn 🌙</Text>
+      <Text style={styles.title}>Istoricul Somnului</Text>
       {loading ? (
         <Text style={styles.loading}>Se încarcă datele...</Text>
       ) : (
@@ -57,7 +56,7 @@ export default function SleepScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f7fa' }, // Am scos paddingTop ca il pune Navigatia automat
+  container: { flex: 1, backgroundColor: '#f5f7fa' },
   title: { fontSize: 28, fontWeight: 'bold', color: '#2d3436', textAlign: 'center', marginVertical: 20 },
   list: { paddingHorizontal: 20, paddingBottom: 20 },
   loading: { textAlign: 'center', fontSize: 18, color: '#636e72', marginTop: 50 },

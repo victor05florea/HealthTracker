@@ -3,13 +3,13 @@ import { useState } from 'react';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 export default function WorkoutDetailScreen({ route }) {
-  // Primim datele antrenamentului pe care am dat click
+  //Primim datele antrenamentului pe care am dat click
   const { workout } = route.params; 
   
-  // Lista de exercitii (incepe cu ce avem deja in baza de date)
+  //Lista de exercitii (incepe cu ce avem deja in baza de date)
   const [exercises, setExercises] = useState(workout.exercises || []);
   
-  // State pentru formularul de adaugare
+  //State pentru formularul de adaugare
   const [name, setName] = useState('');
   const [sets, setSets] = useState('');
   const [reps, setReps] = useState('');
@@ -25,17 +25,17 @@ export default function WorkoutDetailScreen({ route }) {
       weight: parseFloat(weight)
     };
 
-    // ATENTIE: Verifica IP-ul aici!
-    fetch(`http://10.10.200.2:8080/api/workouts/${workout.id}/exercises`, {
+    //Verifica IP-ul
+    fetch(`http://192.168.1.134:8080/api/workouts/${workout.id}/exercises`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newExercise)
     })
     .then(res => res.json())
     .then(savedExercise => {
-      // Adaugam exercitiul in lista de pe ecran
+      //Adaugam exercitiul in lista de pe ecran
       setExercises([...exercises, savedExercise]);
-      // Golim casutele
+      //Golim casutele
       setName(''); setSets(''); setReps(''); setWeight('');
     })
     .catch(err => console.error(err));
@@ -56,9 +56,6 @@ export default function WorkoutDetailScreen({ route }) {
       {/* Lista de exercitii */}
       <FlatList
         data={exercises}
-        // MODIFICAREA E AICI:
-        // Daca are ID, il folosim. Daca nu, generam un text unic ("new-0", "new-1")
-        // Asta previne conflictul dintre ID-ul 1 din baza de date si indexul 1 din lista
         keyExtractor={(item, index) => item.id ? item.id.toString() : `new-${index}`}
         renderItem={({ item }) => (
           <View style={styles.exerciseCard}>

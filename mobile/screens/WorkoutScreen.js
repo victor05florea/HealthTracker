@@ -1,15 +1,14 @@
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, SafeAreaView, Alert } from 'react-native';
 import { useState, useEffect } from 'react';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useIsFocused } from '@react-navigation/native'; // Import nou pentru refresh automat
+import { useIsFocused } from '@react-navigation/native';
 
-// Primim { navigation } automat de la React Navigation
 export default function WorkoutScreen({ navigation }) {
   const [workouts, setWorkouts] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
-  const isFocused = useIsFocused(); // Ne spune daca suntem pe ecranul asta
+  const isFocused = useIsFocused();
 
-  // Lista de optiuni predefinite
+  //Lista de optiuni predefinite
   const workoutTypes = [
     "Spate + Piept",
     "Umeri + Biceps + Triceps",
@@ -18,25 +17,24 @@ export default function WorkoutScreen({ navigation }) {
     "Full Body"
   ];
 
-  // 1. Functia de incarcare a istoricului
+  //Functia de incarcare a istoricului
   const fetchWorkouts = () => {
-    // ATENTIE LA IP! Daca esti acasa, pune 192.168...
-    fetch('http://10.10.200.2:8080/api/workouts')
+    fetch('http://192.168.1.134:8080/api/workouts')
       .then(res => res.json())
       .then(data => setWorkouts(data.reverse())) 
       .catch(err => console.error("Eroare fetch:", err));
   };
 
-  // Se executa cand intram pe ecran (ca sa vedem update-uri daca stergem/adaugam)
+  //Se executa cand intram pe ecran (ca sa vedem update-uri daca stergem/adaugam)
   useEffect(() => {
     if (isFocused) {
       fetchWorkouts();
     }
   }, [isFocused]);
 
-  // 2. Functia de salvare a unui antrenament nou
+  //Functia de salvare a unui antrenament nou
   const handleAddWorkout = (type) => {
-    fetch('http://10.10.200.2:8080/api/workouts', {
+    fetch('http://192.168.1.134:8080/api/workouts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ type: type })
@@ -49,7 +47,7 @@ export default function WorkoutScreen({ navigation }) {
     .catch(err => console.error(err));
   };
 
-  // 3. Functia de STERGERE (Noua)
+  //Functia de STERGERE
   const handleDelete = (id) => {
     Alert.alert(
       "Șterge Antrenament",
@@ -60,7 +58,7 @@ export default function WorkoutScreen({ navigation }) {
           text: "Da", 
           style: "destructive",
           onPress: () => {
-            fetch(`http://10.10.200.2:8080/api/workouts/${id}`, { method: 'DELETE' })
+            fetch(`http://192.168.1.134:8080/api/workouts/${id}`, { method: 'DELETE' })
               .then(() => {
                 // Scoatem elementul din lista locala ca sa nu mai facem request la server
                 setWorkouts(prevWorkouts => prevWorkouts.filter(item => item.id !== id));
@@ -72,11 +70,10 @@ export default function WorkoutScreen({ navigation }) {
     );
   };
 
-  // Randare un element din lista (Card Actualizat)
   const renderItem = ({ item }) => (
     <TouchableOpacity 
       style={styles.card}
-      // Aici e NAVIGAREA catre detalii:
+      //navigarea catre detalii
       onPress={() => navigation.navigate('WorkoutDetail', { workout: item })}
     >
       <View style={styles.iconContainer}>
@@ -102,7 +99,7 @@ export default function WorkoutScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Antrenamente 💪</Text>
+      <Text style={styles.title}>Antrenamente</Text>
 
       <FlatList
         data={workouts}
@@ -155,20 +152,12 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f5f7fa' },
   title: { fontSize: 28, fontWeight: 'bold', textAlign: 'center', marginVertical: 20, color: '#2d3436' },
   list: { paddingHorizontal: 20, paddingBottom: 100 },
-  
-  // Card
   card: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'white', borderRadius: 15, padding: 15, marginBottom: 15, elevation: 3 },
   iconContainer: { backgroundColor: '#6c5ce7', padding: 10, borderRadius: 10, marginRight: 15 },
   workoutType: { fontSize: 18, fontWeight: 'bold', color: '#2d3436' },
   date: { color: 'gray', fontSize: 14 },
-  
-  // Delete Button
   deleteButton: { padding: 10 },
-
-  // Floating Action Button
   addButton: { position: 'absolute', bottom: 30, right: 30, backgroundColor: '#0984e3', width: 60, height: 60, borderRadius: 30, justifyContent: 'center', alignItems: 'center', elevation: 8 },
-
-  // Modal
   modalOverlay: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' },
   modalContent: { backgroundColor: 'white', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20 },
   modalTitle: { fontSize: 20, fontWeight: 'bold', textAlign: 'center', marginBottom: 20 },
