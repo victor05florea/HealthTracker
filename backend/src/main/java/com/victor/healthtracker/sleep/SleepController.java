@@ -5,15 +5,25 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@RestController  // <--- CRITIC: Fara asta, clasa nu e vazuta ca server
-@RequestMapping("/api/sleep") // <--- Asta defineste prima parte a link-ului
+
+/**
+ •	Această parte a aplicației primește cereri legate de somn.
+ •	Permite salvarea și afișarea datelor despre cum a dormit utilizatorul.
+ */
+@RestController
+@RequestMapping("/api/sleep") //defineste prima parte a link-ului
 @CrossOrigin("*")
 public class SleepController {
 
     @Autowired
     private SleepRepository sleepRepository;
 
-    @GetMapping // Link: /api/sleep
+    /**
+     * Returnează toate sesiunile de somn înregistrate.
+     *
+     * @return O listă de obiecte {@link SleepSession}.
+     */
+    @GetMapping
     public List<SleepSession> getAllSleepSessions() {
         return sleepRepository.findAll();
     }

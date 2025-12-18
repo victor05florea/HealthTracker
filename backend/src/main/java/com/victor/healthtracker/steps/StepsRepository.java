@@ -7,6 +7,6 @@ import java.util.Optional;
 
 @Repository
 public interface StepsRepository extends JpaRepository<DailySteps, Long> {
-    // Functie speciala sa gasim inregistrarea dupa data (ca sa nu cream duplicate pt aceeasi zi)
+    //Functie speciala sa gasim inregistrarea dupa data (ca sa nu cream duplicate pt aceeasi zi)
     Optional<DailySteps> findByDate(LocalDate date);
 }

@@ -4,6 +4,4 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface SleepRepository extends JpaRepository<SleepSession, Long> {
-    // Asta e tot! Spring stie acum sa salveze SleepSession in baza de date.
-}
+public interface SleepRepository extends JpaRepository<SleepSession, Long>{}

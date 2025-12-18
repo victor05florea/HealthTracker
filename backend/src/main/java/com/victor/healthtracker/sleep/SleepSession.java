@@ -6,49 +6,68 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import java.time.LocalDateTime;
 
-@Entity // Asta ii spune lui Java: "Fa un tabel din clasa asta!"
+/**
+ * Reprezintă o sesiune de somn a utilizatorului.
+ *
+ * @author Florea Victor
+ * @version 1.0
+ */
+@Entity
 public class SleepSession {
 
-    @Id // Aceasta este cheia primara (ID unic)
+    /**
+     * Identificatorul unic al sesiunii de somn.
+     * Este generat automat de baza de date.
+     */
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // Se autoincrementeaza (1, 2, 3...)
     private Long id;
 
-    private LocalDateTime startTime; // Cand te-ai culcat
-    private LocalDateTime endTime;   // Cand te-ai trezit
 
-    // Constructor gol (Obligatoriu pentru Spring)
-    public SleepSession() {
+    /**
+     * Momentul în care utilizatorul a adormit.
+     */
+    private LocalDateTime startTime;
+
+    /**
+     * Momentul în care utilizatorul s-a trezit.
+     */
+    private LocalDateTime endTime;
+
+    /**
+     * Constructor implicit.
+     */    public SleepSession() {
     }
 
-    // Constructor cu date
+    /**
+     * Constructor complet pentru crearea unei noi sesiuni.
+     *
+     * @param startTime Data și ora culcării.
+     * @param endTime Data și ora trezirii.
+     */
     public SleepSession(LocalDateTime startTime, LocalDateTime endTime) {
         this.startTime = startTime;
         this.endTime = endTime;
     }
 
-    // --- Getters si Setters (Ca sa putem accesa datele) ---
-    // Poti sa le generezi automat cu Alt+Insert, sau sa le copiezi de aici:
-
+    /**
+     * Getteri si Setteri.
+     */
     public Long getId() {
         return id;
     }
-
     public void setId(Long id) {
         this.id = id;
     }
-
     public LocalDateTime getStartTime() {
         return startTime;
     }
-
     public void setStartTime(LocalDateTime startTime) {
         this.startTime = startTime;
     }
-
     public LocalDateTime getEndTime() {
         return endTime;
     }
-
     public void setEndTime(LocalDateTime endTime) {
         this.endTime = endTime;
     }
