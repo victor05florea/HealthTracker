@@ -1,11 +1,11 @@
 package com.victor.healthtracker;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,7 +38,8 @@ public class AiController {
     /**
      * RestTemplate este clasa din Spring cu care putem face cereri HTTP catre alte servere (OpenAI).
      */
-    private final RestTemplate restTemplate=new RestTemplate();
+    @Autowired
+    private RestTemplate restTemplate;
 
     /**
      * Endpoint-ul principal pentru chat.
